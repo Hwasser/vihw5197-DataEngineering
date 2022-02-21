@@ -1,0 +1,58 @@
+import pymongo
+import re
+import bson
+import sys
+
+# Author: Victor Hwasser
+# Date: 13 feb 2022
+
+# Connect to collection
+client = pymongo.MongoClient('localhost', 27017) 
+db = client["test"]
+col = db["tweets"]
+
+# get all pronoums
+regx = bson.regex.Regex(r'\bh?n\b | \bden\b | \bdet\b | \bdenna\b | \bdessa\b')
+regx.flags ^= re.IGNORECASE
+pronoums = col.find({'text': regx})
+
+# count variables
+han   = 0
+hon   = 0
+hen   = 0
+den   = 0
+det   = 0
+denna = 0
+denne = 0
+
+for t in pronoums:
+    if t['retweeted'] == True:
+        continue
+
+    text = (t['text'].lower).split()
+    
+    if 'han' in text:
+        han += 1
+    if 'hon' in text:
+        hon += 1
+    if 'hen' in text:
+        hen += 1
+    if 'den' in text:
+        den += 1
+    if 'det' in text:
+        det += 1
+    if 'denna' in text:
+        denna += 1
+    if 'denne' in text:
+        denne += 1
+
+# Write the result to a file
+sys.stdout = open('results.txt', 'w')
+print("%s\t%s" % ('han', han))
+print("%s\t%s" % ('hon', hon))
+print("%s\t%s" % ('hen', hen))
+print("%s\t%s" % ('den', den))
+print("%s\t%s" % ('det', det))
+print("%s\t%s" % ('denna', denne))
+print("%s\t%s" % ('denne', denna))
+sys.stdout.close()
